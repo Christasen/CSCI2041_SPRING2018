@@ -1,0 +1,75 @@
+We revisit Exercise #2 to see how call by need (lazy evaluation)
+differs from call by name evalution. 
+
+Exercise #2:
+Using call-by-value evaluation and then lazy evaluation,
+write out the first 10 steps of the evaluation of the 
+following: 
+
+take 2 (makefrom 4 5)
+
+Use the following definitions (clearly not OCaml syntax):
+
+   take n [] = []
+   take 0 (x::xs) = []
+   take n (x::xs) = x::take (n-1) xs
+
+   makefrom 0 v = []
+   makefrom n v = v :: makefrom (n-1) (v+1)
+
+
+
+-- call by name
+  take 2 (makefrom 4 5)
+= take 2 (5 :: (makefrom (4-1) (5+1)))
+= 5 :: (take (2-1) (makefrom (4-1) (5+1)))
+= 5 :: (take (2-1) (makefrom 3 (5+1)))
+= 5 :: (take (2-1) ((5+1) :: (makefrom (3-1) ((5+1)+1))))
+= 5 :: (take 1 ((5+1) :: (makefrom (3-1) ((5+1)+1))))
+= 5 :: ( (5+1) :: (take (1-1) (makefrom (3-1) ((5+1)+1))))
+= 5 :: ( 6 :: (take (1-1) (makefrom (3-1) ((5+1)+1))))
+= 5 :: ( 6 :: (take (1-1) (makefrom 2 ((5+1)+1))))
+= 5 :: ( 6 :: (take (1-1) ((5+1)+1) :: makefrom (2-1) (((5+1)+1)+1))))
+= 5 :: ( 6 :: (take 0 ((5+1+1) :: makefrom (2-1) (((5+1)+1)+1))))
+= 5 :: ( 6 :: [])
+
+We should notice above that if we were to take 3 elements off of the
+makefrom list then we would evaluate 5+1 two times.  That would not
+happen in the lazy evaluation of the same expression shown below.
+
+-- call by need / lazy evaluation
+  take 2 (makefrom 4 5)
+= take 2 (5 :: makefrom (4-1) (5+1))
+= 5 :: take (2-1) (makefrom (4-1) (5+1))
+= 5 :: take (2-1) (makefrom 3 (5+1))
+= 5 :: take (2-1) (v1 :: makefrom (3-1) (v1+1))
+  where v1 = 5+1
+= 5 :: take 1 (v1 :: makefrom (3-1) (v1+1))
+  where v1 = 5+1
+= 5 :: v1 :: take (1-1) (makefrom (3-1) (v1+1))
+  where v1 = 5+1
+= 5 :: v1 :: take (1-1) (makefrom (3-1) (v1+1))
+   where v1 = 6
+= 5 :: 6 :: take (1-1) (makefrom (3-1) (6+1))
+= 5 :: 6 :: take (1-1) (makefrom 2 (6+1))
+= 5 :: 6 :: take (1-1) (v2 :: makefrom (2-1) (v2+1))
+  where v2 = 6+1
+= 5 :: 6 :: take 0 (v2 :: makefrom (2-1) (v2+1))
+  where v2 = 6+1
+= 5 :: 6 :: []
+
+
+
+
+Exercise #4:
+
+Evaluate the first dozen steps or so of the following:
+
+sum (take 3 (squares from 1))
+
+where
+
+   sum [] = 0
+   sum x::xs -> x + sum xs
+
+   squares from v = v*v :: squares from (v+1)

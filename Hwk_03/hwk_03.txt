@@ -1,0 +1,291 @@
+CSCI2041 HWK3
+Guangyu Yan
+
+Question1
+let rec power n x =
+  match n with
+  | 0 -> 1.0
+  | _ -> x * . power (n-1) x
+
+-- A property and its inductive proof. --
+
+P(n, x):  power n x = x ^ n
+
+Base case:
+  P(0, x)
+= 1.0
+  by definition of power
+= x ^ 0
+  by exponential arithmetic
+
+Inductive Case:
+
+P(n+1, x) = power n+1 x = x ^ (n+1)
+show: power n+1 x = x ^ (n+1)
+given: power n x = x ^ n
+
+  power n+1 x
+= x * (power n x)
+  by definition of power
+= x * x ^ n
+  by Inductive hypothesis
+= x ^ (n+1)
+  by exponential arithmetic
+
+
+Question2
+type nat = Zero | Succ of nat
+
+let toInt = function
+  | Zero -> 0
+  | Succ n -> toInt n + 1
+
+let rec power n x = match n with
+ | Zero -> 1.0
+ | Succ n' -> x * . power n' x
+
+-- A property over nat and its inductive proof --
+
+Base Case:
+P(Zero): \forall n' \in nat:
+show: power Zero x = x ^ toInt(Zero)
+
+  power Zero x
+= 1.0
+  by definition of power
+= x ^ 0
+  by arithmetic
+= x ^ toInt(Zero)
+  by definition of toInt
+
+Inductive Case:
+
+P(Succ n): \forall n' \in nat:
+show:  power Succ n x = x ^ toInt(Succ n)
+given: power n x = x ^ toInt(n)
+
+  power Succ n x
+= x * . power n x
+  by definition of power
+= x * . x ^ toInt(n)
+  by Inductive hypothesis
+= x ^ (toInt n + 1 )
+  by exponential arithmetic
+= x ^ toInt(Succ n)
+  by definition of toInt
+
+
+Question 3
+
+let rec reverse l = match l with
+ | [] -> []
+ | (h::t) -> append (reverse t) [h]
+
+ let rec append l1 l2 = match l1 with
+ | [] -> l2
+ | (h::t) -> h:: (append t l2)
+
+ P(l1, l2): reverse (append l1 l2) = append (reverse l2)  (reverse l1)
+
+Induction is over l1.
+
+
+append (append l1 l2) l3 = append l1 (append l2 l3)
+
+Base case:
+  append (append [] l2) l3 
+= append l2 l3
+  By definition of append
+= append [] (append l2 l3)
+  Because empty list is the identity
+
+Inductive case:
+show: append (append x::xs l2) l3 = append x::xs (append l2 l3)
+given: append (append xs l2) l3 = append xs (append l2 l3)
+
+  append (append x::xs l2) l3
+= append (x::(append xs l2)) l3
+  By definition of append
+= x:: append (append xs l2) l3
+  By definition of append
+= x::append xs (append l2 l3)
+  By Inductive hypothesis
+= append x::xs (append l2 l3)
+  By definition of append
+
+
+
+Base case
+P([], l2): reverse (append [] l2) = append (reverse l2) (reverse [])
+
+  reverse (append [] l2)
+= reverse l2
+  by definition of append
+= (reverse []::l2)
+  by empty list is the identity 
+= append reverse l2 []
+  by definition of reverse
+= append (reverse l2) (reverse [])
+  because reverse [] = []
+
+
+Inductive case
+P(x::xs, l2): reverse (append x::xs l2) = append (reverse l2)  (reverse x::xs)
+
+show: reverse (append x::xs l2) = append (reverse l2)  (reverse x::xs)
+given: reverse (append xs l2) = append (reverse l2)  (reverse xs)
+
+  reverse (append x::xs l2)
+= reverse (x:: (append xs l2))
+  by definition of append
+= append (reverse (append xs l2)) [x]
+  by the definition of reverse
+= append (append (reverse l2)  (reverse x)) [x]
+  by Inductive hypothesis
+= append (reverse l2) (append reverse xs [x])
+  by append (append l1 l2) l3 = append l1 (append l2 l3)
+= append (reverse l2)  (reverse x::xs)
+  by def. of reverse
+
+
+
+Question 4
+let isupper c = Char.code c >= Char.code 'A' &&
+                Char.code c <= Char.code 'Z'
+
+let rec someupper lst = match lst with
+  | [] -> false
+  | x::xs -> isupper x || someupper xs
+
+
+P(x): someupper (l1 @ l2) = someupper l1 || someupper l2
+Induction is over l1
+
+Base Case:
+P([],l2): someupper([] @ l2) = = someupper l2 || someupper []
+
+  someupper([] @ l2)
+= someupper l2
+  by definition of @
+= someupper l2 || false
+  by definition of disjunction
+= someupper l2 || someupper []
+  by definition of someupper
+
+Inductive Case:
+show: someupper (x::xs @ l2) = someupper x::xs || someupper l2
+given: someupper (xs @ l2) = someupper xs || someupper l2
+
+  someupper(x::xs @ l2)
+= someupper(([x] @ xs) @ l2)
+  by property of list
+= someupper([x] @ (xs @ l2))
+  by property of list
+= someupper(x::(xs @ l2))
+  by the property of the list
+= isupper x || someupper (xs @ l2)
+  by the definition of someupper
+= isupper x || someupper xs || someupper l2
+  by Inductive Hypothesis
+= someupper x::xs || someupper l2
+  by definition of someupper
+
+
+
+
+Question 5
+let isupper c = Char.code c >= Char.code 'A' &&
+                Char.code c <= Char.code 'Z'
+
+let rec someupper lst = match lst with
+  | [] -> false
+  | x::xs -> isupper x || someupper xs
+
+let rec foldr (f: 'a -> 'b -> 'b) (l: 'a list) (v: 'b)
+  match l with
+  | [] -> v
+  | x::xs ->  f x (foldr f xs v)
+
+let upperor c b = isupper c || b
+let foldupper lst = foldr upperor lst false
+
+P(x): someupper x = foldupper x
+
+Base Case:
+P([]): someupper [] = foldupper []
+
+  someupper []
+= false
+  by definition of someupper
+= foldupper []
+  by definition of foldupper
+
+Inductive Case
+show： someupper (x::xs) = foldupper(x::xs)
+given: someupper xs =  foldupper xs
+
+  someupper (x::xs)
+= isupper x || someupper xs
+  by definition of someupper
+= upperor x (someupper xs)
+  by definition of upperor
+= upperor x (foldupper xs)
+  by Inductive hypothesis
+= upperor x (foldr upperor xs false)
+  by definition of foldupper
+= foldr upperor (x::xs) false
+  by definition of foldr
+= foldupper (x::xs)
+  by definition of foldupper
+
+
+Question 6
+
+type 'a tree = Leaf of 'a
+              |Branch of 'a tree * 'a tree
+
+let min x y = if x < y then x else y
+
+let rec mintree t = match t with
+  | Leaf v -> v
+  | Branch(t1, t2) -> min (mintree t1) (mintree t2)
+
+let rec tfold (l:’a -> ’b) (f: ’b -> ’b -> ’b) (t: ’a tree) : ’b = match t with
+  | Leaf v -> l v
+  | Branch (t1, t2) -> f (tfold l f t1) (tfold l f t2)
+
+let fold_mintree t = tfold (fun x -> x) min t
+P(x)： mintree t = fold_mintree t
+
+
+Base Case:
+P(mintree Leaf): mintree Leaf v = fold_mintree Leaf v
+
+  mintree Leaf v
+= v
+  by definition of mintree
+= (fun x -> x) v
+  by function properties
+= tfold (fun x -> x) min Leaf v
+  by the definition of tfold
+= fold_mintree Leaf v
+  by the definition of fold_mintree
+
+
+Inductive Case:
+show: mintree Branch(t1, t2) = fold_mintree Branch(t1, t2)
+
+given: mintree t1 = fold_mintree t1
+       mintree t2 = fold_mintree t2
+
+  mintree Branch(t1, t2)
+= min(mintree t1) (mintree t2)
+  by definition of mintree
+= min(fold_mintree t1) (fold_mintree t2)
+  by Inductive hypothesis
+= min(tfold(fun x -> x) min t1) (tfold(fun x -> x) min t2)
+  by definition of fold_mintree
+= tfold(fun x-> x) min Branch(t1,t2)
+  by definition of tfold
+= fold_mintree Branch(t1, t2)
+  by definition of fold_mintree

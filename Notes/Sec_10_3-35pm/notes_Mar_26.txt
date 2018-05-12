@@ -1,0 +1,48 @@
+type ’a tree
+  = Nothing
+  | Branch of ’a * ’a tree * ’a tree
+
+let rec somepositive t =
+  match t with
+  | Nothing -> false
+  | Branch (v, t1, t2) -> v > 0 || somepositive t1 
+                                || somepositive t2
+let rec tfold (n: ’b) (f: ’a -> ’b -> ’b -> ’b) 
+              (t: ’a tree) : ’b =
+  match t with
+  | Nothing -> n
+  | Branch (v, t1, t2) -> f v (tfold n f t1) (tfold n f t2)
+let fold_somepositive t = 
+   tfold false (fun a b c -> (a > 0) || b || c) t
+
+Show:  P(t) is somepositive t = fold_somepositive t
+       show forall t, P(t)
+
+1. Principle of induction
+       forall t, P(t) if 
+         P(Nothing) and
+         P(t1) and P(t2) implies P (Branch (v, t1, t2) )
+2. Base case to show
+     somepositive Nothing = fold_somepositive Nothing
+3. Showing base base
+  Note: ff = fun a b c -> (a>0) || b || c
+  somepositive Nothing 
+= false, by def of somepositve
+= tfold false ff Nothing, by def of tfold
+= fold_somepositive Nothing, by def of fold_somepositive
+
+4. Inductive case to show
+   P( Branch (v, t1, t2) ) 
+   somepositie (Branch (v, t1, t2)) =
+      fold_somepositive (Branch (v, t1, t2))
+5. Inductive hypothesis
+   somepositive t1 = fold_somepositive t1 and
+   somepostivie t2 = fold_somepositive t2 
+6. Show inductive case
+  somepositive (Branch (v, t1, t2))
+= v > 0 || somepositive t1 || somepositive t2, by def somepos
+= v > 0 || fold_somepositive t1 || fold_somepos t2, by ind. h.
+= v > 0 || (tfold false ff t1) || (tfold false ff t2),
+    by def fold_somepositive
+= tfold false ff (Branch (v, t1, t2)), by def of tfold
+= fold_somepositive (Branch (v, t1, t2)), by def fold_somepos

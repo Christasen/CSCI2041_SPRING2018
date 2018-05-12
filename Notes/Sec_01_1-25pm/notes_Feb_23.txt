@@ -1,0 +1,85 @@
+(* A proof for sorted lists. *)
+
+let rec place e l = match l with 
+  | [ ] -> [e]
+  | x::xs -> if e < x then e::x::xs
+             else x :: (place e xs)
+let rec is_elem e l = match l with
+  | [ ] -> false
+  | x::xs -> e = x || (e > x && is_elem e xs)
+
+A property we might like to show:
+P(l): is_elem e (place e l) = true
+
+Base case:
+P([]) is_elem e (place e []) = true
+
+  is_elem e (place e []) 
+= is_elem e ( e::[] )
+  by def. of place
+= e = e || (e > e && is_elem e [])
+  by def. of is_elem
+= true
+  by equality of elements
+
+Inductive case: 
+P(y::ys): is_elem e (place e (y::ys)) = true
+
+show:  is_elem e (place e (y::ys)) = true
+given: is_elem e (place e ys) = true
+
+Divide the inductive case into 3 sub-cases:
+
+Case 1: e < y
+  is_elem e (place e (y::ys)) 
+= is_elem e (e::y::ys)
+  by def of place
+= e = e || (e > e && is_elem e (y::ys))
+  by def of is_elem
+= true
+  by equality of e
+
+Case 2: e = y
+  is_elem e (place e (y::ys))
+= is_elem e (y :: place e ys)
+  by def of place 
+= e = y || (e > y && is_elem e (place e ys))
+  by def of is_elem
+= true
+  by assumption of Case 2 that e = y
+
+Case 3: e > y
+  is_elem e (place e (y::ys))
+= is_elem e (y :: place e ys)
+  by def of place 
+= e = y || (e > y && is_elem e (place e ys))
+  by def of is_elem
+= (e > y && is_elem e (place e ys))
+  by disjuction and our assumption
+= is_elem e (place e ys)
+  by conjunction and our assumption
+= true
+  by induction
+
+
+
+
+
+
+
+
+
+
+
+
+
+let rec euclid m n =
+  if m = n then m
+  else
+    if m < n
+    then euclid m (n-m)
+    else euclid (m-n) n
+
+gcd m n = gcd m (n−m) if n>m 
+gcd m n = gcd (m−n) n if m>n
+gcd m n = m           if m=n

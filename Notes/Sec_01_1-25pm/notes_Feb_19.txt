@@ -1,0 +1,119 @@
+*** Notes from February 19, Section 01, 1:25pm ***
+
+-- A property and its inductive proof. --
+
+P(n): 0 + 1 + 2 ... + n = (n (n+1)) / 2
+
+Base case:
+P(0): 0 + 1 + 2 + .. + 0 = (0 (0+1)) / 2
+
+  0 + 1 + 2 + .. + 0 
+= 0
+  by def. of this operator
+= (0 (0+1)) / 2
+  by arithmetic
+
+Inductive case:
+P(n+1) 0 + 1 + 2 ... + n + (n+1) = ((n+1) (n+2)) / 2
+show:  0 + 1 + 2 ... + n + (n+1) = ((n+1) (n+2)) / 2
+given: 0 + 1 + 2 ... + n = (n (n+1)) / 2
+
+  0 + 1 + 2 ... + n + (n+1) 
+= (0 + 1 + 2 ... + n) + (n+1) 
+  by arithemetic
+= (n (n+1)) / 2 + (n+1)
+  by inductive hypothesis
+= (n (n+1)) / 2 + ( 2 (n+1) / 2 )
+  by arithmetic
+
+... completing this is an exercise for the reader ...
+
+= ((n+1) (n+2)) / 2
+
+
+
+-- Some OCaml functions
+
+let rec sumTo n = match n with
+  | 0 -> 0
+  | n -> n + sumTo (n-1)
+
+
+type nat = Zero | Succ of nat
+
+let rec add n1 n2 = match (n1, n2) with
+  | (Zero, n) -> n
+  | (Succ n', n) -> Succ (add n' n)
+
+let toInt = function
+  | Zero -> 0
+  | Succ n -> toInt n + 1
+
+let rec sumTo' n = match n with
+  | Zero -> Zero
+  | Succ n' -> add n (sumTo' n)
+
+
+
+what is 3?   Succ (Succ (Succ Zero))
+
+  add (Succ (Succ Zero)) (Succ Zero)
+= Succ (add (Succ Zero) (Succ Zero))
+= Succ (Succ (add Zero (Succ Zero)))
+= Succ (Succ (Succ Zero))
+
+
+-- A property over nat and its inductive proof --
+
+P(Zero): \forall n' \in nat:
+show: toInt (add Zero n') = toInt Zero + toInt n'
+
+  toInt (add Zero n')
+= toInt n'
+  by def. of add
+= 0 + toInt n'
+  by arithmetic
+= toInt Zero + toInt n'
+  by def. of toInt
+
+
+P(Succ n): \forall n' \in nat:
+show:  toInt (add (Succ n) n') = toInt (Succ n) + toInt n'
+given: toInt (add n n') = toInt n + toInt n'
+
+  toInt (add (Succ n) n') 
+= toInt (Succ (add n n'))
+  by def. of add
+= toInt (add n n') + 1
+  by def. of toInt
+= toInt n + toInt n' + 1
+  by induction
+= (toInt n + 1) + toInt n'
+  by arithemtic
+= toInt (Succ n) + toInt n'
+  by def of toInt
+
+
+
+
+-- Exercise #1 --
+
+n \in nat P(n): toInt(sumTo' n) = 0 + 1 + 2 + ... + (toInt n)
+
+P(Zero): toInt(sumTo' Zero) = 0 + 1 + 2 + ... + (toInt Zero)
+
+P(Succ n): 
+given: toInt(sumTo' n) = 0 + 1 + 2 + ... + (toInt n)
+show: toInt(sumTo' (Succ n)) = 0 + 1 + 2 + ... + (toInt (Succ n))
+
+  toInt(sumTo' (Succ n)) 
+= 
+
+  ... completing this is an exercise for the reader ...
+
+= 0 + 1 + 2 + ... + (toInt (Succ n))
+
+
+
+
+

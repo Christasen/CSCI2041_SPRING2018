@@ -1,0 +1,69 @@
+type ’a tree
+  = Empty
+  | Split of ’a * ’a tree * ’a tree
+
+
+let andf x y = if x then y else false
+
+let rec alltrue t =
+  match t with
+  | Empty -> true
+  | Split (v, t1, t2) -> andf v (andf (alltrue t1) (alltrue t2))
+
+let rec tfold (base: ’b) (f: ’a -> ’b -> ’b -> ’b) (t: ’a tree) : ’b =
+  match t with
+  | Empty -> base
+  | Split (v, t1, t2) -> f v (tfold base f t1) (tfold base f t2)
+
+let fold_alltrue t = tfold true (fun a b c -> andf a (andf b c)) t
+
+Show:  alltrue t = fold_alltrue t
+
+
+1. Principle of induction
+
+  forall t, P(t) holds if
+      P(Empty) and
+      P(t1) and P(t2) implies P( Split(v, t1, t2))
+
+2. Base case to show
+   P(Empty)
+
+   alltrue Empty = fold_alltrue Empty
+
+3. Show base case
+
+  alltrue Empty 
+= true, by def of alltrue
+= tfold true (fun a b c -> andf a (andf b c)) Empty, by def tfold
+= fold_alltrue Empty, by def of fold_alltrue
+
+4. Inductive case to show
+
+   alltrue (Split (v, t1, t2)) = fold_alltrue (Split (v, t1, t2))
+
+5. Inductive hypothesis (what is given)
+   alltrue t1 = fold_alltrue t1 and
+   alltrue t2 = fold_alltrue t2
+
+6. Show inductive case
+  alltrue (Split (v, t1, t2)) 
+= andf v (andf (alltrue t1) (alltrue t2)), by def of alltrue
+= andf v (andf (fold_alltrue t1) (fold_alltrue t2)), by inductive  hypothesis
+= andf v (andf (tfold true f t1) (tfold true f t2)), by def of fold_alltrue
+= tfold true f (Split (v, t1, t2)), by def of tfold
+= fold_alltrue (Split (v, t1, t2)), by def of fold_alltrue
+  - where f = fun (a b c -> andf a (andf b c))
+
+
+
+Another version
+
+type 'a tree2
+     = Leaf of 'a
+     | Fork of 'a tree2 * 'a tree2
+
+forall t, P(t)
+   P (Leaf v)
+   forall t1, t2 . P(t1) and P(t2) implies P (Fork (t1, t2))
+

@@ -1,0 +1,83 @@
+(* Notes from Feb 21, based on discussion of material and slides from
+   section S.2 on Reasoning about Program Correctness *)
+
+let rec sum = function
+| [] -> 0
+| x::xs -> x + sum xs
+
+P(l1, l2): sum (l1 @ l2) = sum l1 + sum l2
+
+P(l1): \forall l2.  sum (l1 @ l2) = sum l1 + sum l2
+- we don't have to restructure this property
+
+Induction is on l1.
+
+P(l1, l2): sum (l1 @ l2) = sum l1 + sum l2
+
+Base case:
+P([], l2): sum ([] @ l2) = sum [] + sum l2
+
+  sum ([] @ l2) 
+= sum l2
+  by def of @ and []
+= 0 + sum l2
+  by arithmetic
+= sum [] + sum l2
+  by def. of sum
+
+
+Inductive caes:
+P(x::xs, l2): sum ((x::xs) @ l2) = sum (x::xs) + sum l2
+
+show: sum ((x::xs) @ l2) = sum (x::xs) + sum l2
+given: sum (xs @ l2) = sum xs + sum l2
+
+  sum ((x::xs) @ l2) 
+= sum ( x :: (xs @ l2) )
+  by def @ and ::
+= x + sum (xs @ l2)
+  by def of sum
+= x + (sum xs + sum l2)
+  by inductive hypothesis
+= (x + sum xs) + sum l2
+  by properties of addition
+= sum (x::xs) + sum l2
+  by def of sum
+
+
+let rec reverse = function
+ | [] -> []
+ | x::xs -> reverse xs @ [x]
+
+P(l1, l2): reverse (l1 @ l2) = reverse l2 @ reverse l1
+
+Induction on l1.
+
+Base case:
+P([], l2): reverse ([] @ l2) = reverse l2 @ reverse []
+
+  reverse ([] @ l2) 
+= reverse l2
+  by def of @ to []
+= reverse l2 @ []
+  by def on @ []
+= reverse l2 @ reverse []
+  by def of reverse
+
+Inductive case:
+P(x::xs, l2): reverse ((x::xs) @ l2) = reverse l2 @ reverse (x::xs)
+
+show:  reverse ((x::xs) @ l2) = reverse l2 @ reverse (x::xs)
+given: reverse (xs @ l2) = reverse l2 @ reverse xs
+
+  reverse ((x::xs) @ l2) 
+= reverse (x :: (xs @ l2))
+  by def of @ and ::
+= reverse (xs @ l2) @ [x]
+  by def of reverse
+= (reverse l2 @ reverse xs) @ [x]
+  by inductive hyp.
+= reverse l2 @ (reverse xs @ [x])
+  by properties of @
+= reverse l2 @ reverse (x::xs)
+  by def of reverse

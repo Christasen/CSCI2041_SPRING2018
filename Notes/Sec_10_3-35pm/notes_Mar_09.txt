@@ -1,0 +1,11 @@
+Exercise #4:
+Evaluate the first dozen steps or so of the following:
+
+sum (take 3 (squares from 1))
+
+where
+
+   sum [] = 0
+   sum x::xs -> x + sum xs
+
+   squares from v = v*v :: squares from (v+1)

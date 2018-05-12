@@ -1,0 +1,132 @@
+*** Notes from February 19, Section 01, 1:25pm ***
+
+P(n): 0 + 1 + 2 ... + n = (n (n+1)) / 2
+
+Base case:
+P(0): 0 + 1 + 2 ... + 0 = (0 (0+1)) / 2
+
+  0 + 1 + 2 ... + 0 
+= 0
+  by def of + ... + operation
+= (0 (0+1)) / 2
+  by arithemetic
+
+Inductive case:
+P(n+1): 
+show:  0 + 1 + 2 ... + n + (n+1) = ((n+1) (n+2)) / 2
+given: 0 + 1 + 2 ... + n = (n (n+1)) / 2
+
+  0 + 1 + 2 ... + n + (n+1) 
+= (0 + 1 + 2 ... + n) + (n+1) 
+  by arithmetic
+= (n (n+1)) / 2  + (n+1)
+  by induction
+= (n (n+1)) / 2  + (2 (n+1) / 2 )
+  by arithmetic
+
+... completing this is an exercise for the reader ..
+
+= ((n+1) (n+2)) / 2
+
+-- Some OCaml functions
+
+let rec sumTo n = match n with
+  | 0 -> 0
+  | n -> n + sumTo (n-1)
+
+type nat = Zero | Succ of nat
+
+let rec add n1 n2 = match (n1, n2) with
+  | (Zero, n) -> n
+  | (Succ n', n) -> Succ (add n' n)
+let toInt = function
+  | Zero -> 0
+  | Succ n -> toInt n + 1
+
+
+-- A sample property and its inductive proof. --
+
+P(n): \forall n' in nat. toInt (add n n') = toInt n + toInt n'
+
+Base case:
+P(Zero): \forall n' \in nat:
+show: toInt (add Zero n') = toInt Zero + toInt n'
+
+  toInt (add Zero n') 
+= toInt n'
+  by def. of add
+= 0 + toInt n'
+  by arithmetic
+= toInt Zero + toInt n'
+  by def of toInt
+
+Inductive case:
+P(Succ n): \forall n' \in nat:
+show:  toInt (add (Succ n) n') = toInt (Succ n) + toInt n'
+given: toInt (add n n') = toInt n + toInt n'
+
+  toInt (add (Succ n) n') 
+= toInt (Succ (add n n'))
+  by def. of add
+= toInt (add n n') + 1
+  by def of toInt
+= (toInt n + toInt n') + 1
+  by induction
+= (toInt n + 1) + toInt n'
+  by artimetic
+= toInt (Succ n) + toInt n'
+  by def of toInt
+
+
+
+
+
+
+
+
+-- Repeating our OCaml functions so we can see them
+   next to the property and proof. --
+
+type nat = Zero | Succ of nat
+
+let rec add n1 n2 = match (n1, n2) with
+  | (Zero, n) -> n
+  | (Succ n', n) -> Succ (add n' n)
+let toInt = function
+  | Zero -> 0
+  | Succ n -> toInt n + 1
+let rec sumTo' n = match n with
+  | Zero -> Zero
+  | Succ n' -> add n (sumTo' n)
+
+
+-- Exercise #1 --
+-----------------
+
+n \in nat P(n): toInt(sumTo' n) = 0 + 1 + 2 + ... + (toInt n)
+
+Base case:
+P(Zero): toInt(sumTo' Zero) = 0 + 1 + 2 + ... + (toInt Zero)
+
+  toInt(sumTo' Zero) 
+= toInt Zero
+  by def of sumTo'
+= 0
+  by def of toInt
+= 0 + 1 + 2 + ... + 0
+  by def. of operator
+= 0 + 1 + 2 + ... + (toInt Zero)
+  by def of toInt
+
+
+Inductive case:
+show: toInt(sumTo' (Succ n)) = 0 + 1 + 2 + ... + (toInt (Succ n))
+given: toInt(sumTo' n) = 0 + 1 + 2 + ... + (toInt n)
+
+  toInt(sumTo' (Succ n)) 
+
+... completing this is an exercise for the reader ...
+
+= 0 + 1 + 2 + ... + (toInt (Succ n))
+
+
